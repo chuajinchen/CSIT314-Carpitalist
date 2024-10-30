@@ -8,6 +8,7 @@
 </head>
 <body>
     <p>Welcome, {{ name }}!</p>
+    
     <form action="/register" method="POST">
         <button type="submit">Register</button>
     </form>
@@ -20,6 +21,11 @@
         <button type="submit">Logout</button>
     </form>
 
+    <!-- New View Profiles Button -->
+    <form action="/view_profiles" method="GET">
+        <button type="submit">View Profiles</button>
+    </form>
+    
     <h1>User Accounts Dashboard</h1>
 
     <!-- Search Form -->
