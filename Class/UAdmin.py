@@ -16,8 +16,34 @@ class UAdmin(Account):
         return 'Profiles'
     
     #Function for user admin to search for specific profile
-    def searchProfile():
-        return 'Selected Profile'
+    def search_users(profile_type=None, email=None, name=None):
+        """
+        Searches for users in the database based on profile_type, email, or name.
+        Any combination of the parameters can be provided for filtering.
+        """
+        conn = Account.create_connection()
+        cursor = conn.cursor(dictionary=True)  # Returns results as dictionaries
+        query = "SELECT profile, name, email FROM users WHERE 1=1"
+        params = []
+
+        # Build query dynamically based on provided parameters
+        if profile_type:
+            query += " AND profile = %s"
+            params.append(profile_type)
+        
+        if email:
+            query += " AND email = %s"
+            params.append(email)
+        
+        if name:
+            query += " AND name LIKE %s"
+            params.append(f"%{name}%")  # Partial match for name
+
+        cursor.execute(query, params)
+        users = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return users
     
     #Function for user admin to suspend a profile
     def suspendProfile():
