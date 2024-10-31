@@ -16,8 +16,8 @@
         <label for="profile">Profile:</label>
         <select id="profile" name="profile" required>
             <option value="User Admin" {% if user.profile == 'User Admin' %}selected{% endif %}>User Admin</option>
-            <option value="Buyer" {% if user.profile == 'Buyer' %}selected{% endif %}>Buyer</option>
-            <option value="Seller" {% if user.profile == 'Seller' %}selected{% endif %}>Seller</option>
+            <option value="buyer" {% if user.profile == 'Buyer' %}selected{% endif %}>Buyer</option>
+            <option value="seller" {% if user.profile == 'Seller' %}selected{% endif %}>Seller</option>
         </select>
 
         <button type="submit">Update</button>
