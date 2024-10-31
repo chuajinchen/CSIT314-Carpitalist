@@ -2,30 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Profiles</title>
 </head>
 <body>
-    <h2>Select a Profile to View Users</h2>
-    <form method="POST">
-        <label for="profile">Choose a profile:</label>
-        <select name="profile" id="profile" required>
+    <h1>Select a Profile to View Description</h1>
+
+    <!-- Dropdown to select profile type -->
+    <form method="POST" action="/view_profiles">
+        <label for="profile_type">Choose a Profile:</label>
+        <select name="profile_type" id="profile_type">
             <option value="" disabled selected>Select a profile</option>
-            {% for profile in profiles %}
+            {% for profile in profile_types %}
                 <option value="{{ profile }}" {% if profile == selected_profile %}selected{% endif %}>{{ profile }}</option>
             {% endfor %}
         </select>
-        <button type="submit">View Users</button>
+        
+        <!-- View Description and Back to Dashboard Buttons -->
+        <button type="submit">View Description</button>
+        <a href="/dashboard"><button type="button">Back to Dashboard</button></a>
     </form>
 
-    {% if users %}
-        <h3>Users in {{ selected_profile }} Profile:</h3>
-        <ul>
-            {% for user in users %}
-                <li>Name: {{ user['name'] }}, Email: {{ user['email'] }}</li>
-            {% endfor %}
-        </ul>
-    {% elif selected_profile %}
-        <p>No users found for the selected profile.</p>
+    <!-- Display the selected profile and description -->
+    {% if selected_profile %}
+        <h2>{{ selected_profile }}</h2>
+        <p>{{ description }}</p>
     {% endif %}
 </body>
 </html>

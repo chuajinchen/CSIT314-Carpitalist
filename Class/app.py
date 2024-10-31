@@ -147,6 +147,29 @@ def show_update_form():
     # Pass the user details to the template
     return render_template('update_form.html', user=user_details)
 
+# Add descriptions for each profile type
+profile_descriptions = {
+    "Buyer": "View cars, view car information, mileage, buy cars",
+    "Seller": "List cars for sale, manage listings, view buyer requests",
+    "Used Car Agent": "Assist buyers with car purchases, verify car conditions, liaise with sellers",
+    "User Admin": "Manage user accounts, access all profiles, add/delete users"
+}
+
+# Route to view profiles with descriptions
+@app.route('/view_profiles', methods=['GET', 'POST'])
+def view_profiles():
+    selected_profile = None
+    description = None
+
+    if request.method == 'POST':
+        # Get the selected profile from the dropdown
+        selected_profile = request.form.get('profile_type')
+        description = profile_descriptions.get(selected_profile, "No description available for this profile.")
+
+    return render_template('view_profiles.html', profile_types=profile_descriptions.keys(),
+                           selected_profile=selected_profile, description=description)
+
+
 # Route for Manage Accounts page
 @app.route('/manage_accounts', methods=['GET'])
 def manage_accounts():
