@@ -122,6 +122,46 @@ def view_profiles():
     # Initial page load (GET request) shows empty user list
     return render_template('view_profiles.html', profiles=profiles, selected_profile=None, users=[])
 
+# Route to suspend a user
+@app.route('/suspend_user', methods=['POST'])
+def suspend_user():
+    email = request.form.get('email')
+    result = Account.suspend_account(email)
+    if result:
+        flash("User account suspended successfully.", "success")
+    else:
+        flash("An error occurred while suspending the account.", "error")
+    return redirect(url_for('view_profiles'))
+
+# Route to update a user
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    email = request.form.get('email')
+    session['update_email'] = email  # Store email in session for updating
+    return redirect(url_for('show_update_form'))
+
+@app.route('/update_form', methods=['GET', 'POST'])
+def show_update_form():
+    if request.method == 'POST':
+        email = session.get('update_email')
+        name = request.form.get('name')
+        new_email = request.form.get('email')  # Get the new email from the form
+        profile = request.form.get('profile')
+
+        success = Account.update_account(new_email, name, profile)  # Update the account with the new email
+        if success:
+            flash("User account updated successfully.", "success")
+        else:
+            flash("An error occurred while updating the account.", "error")
+        return redirect(url_for('view_profiles'))
+
+    # If it's a GET request, fetch user details to autofill the form
+    email = session.get('update_email')
+    user_details = Account.get_user_by_email(email)  # Fetch user details by email
+
+    # Pass the user details to the template
+    return render_template('update_form.html', user=user_details)
+
 
 # Route to handle user logout
 @app.route('/logout', methods=['POST'])
