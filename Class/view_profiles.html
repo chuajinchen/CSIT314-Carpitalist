@@ -3,8 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>View Profiles</title>
+    <style>
+        /* Popup styling */
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            width: 250px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .popup.success {
+            border-left: 4px solid green;
+        }
+        .popup.error {
+            border-left: 4px solid red;
+        }
+        .popup button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            margin: 0 5px;
+        }
+        form {
+            display: inline;
+        }
+    </style>
 </head>
 <body>
+    <!-- Popup display for flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="popup {{ category }}">
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.style.display='none'">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
     <h2>Select a Profile to View Users</h2>
     <form method="POST">
         <label for="profile">Choose a profile:</label>
@@ -16,16 +77,44 @@
         </select>
         <button type="submit">View Users</button>
     </form>
+        
+    <!-- Button to return to dashboard -->
+    <form action="{{ url_for('dashboard') }}">
+        <button type="submit" class="back-button">Back to Dashboard</button>
+    </form>
 
     {% if users %}
         <h3>Users in {{ selected_profile }} Profile:</h3>
-        <ul>
-            {% for user in users %}
-                <li>Name: {{ user['name'] }}, Email: {{ user['email'] }}</li>
-            {% endfor %}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user['name'] }}</td>
+                        <td>{{ user['email'] }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('suspend_user') }}">
+                                <input type="hidden" name="email" value="{{ user['email'] }}">
+                                <button type="submit">Suspend</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('update_user') }}">
+                                <input type="hidden" name="email" value="{{ user['email'] }}">
+                                <button type="submit">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% elif selected_profile %}
         <p>No users found for the selected profile.</p>
     {% endif %}
+
 </body>
 </html>
