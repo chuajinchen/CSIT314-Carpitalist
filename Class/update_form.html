@@ -16,11 +16,15 @@
         <label for="profile">Profile:</label>
         <select id="profile" name="profile" required>
             <option value="User Admin" {% if user.profile == 'User Admin' %}selected{% endif %}>User Admin</option>
-            <option value="buyer" {% if user.profile == 'Buyer' %}selected{% endif %}>Buyer</option>
-            <option value="seller" {% if user.profile == 'Seller' %}selected{% endif %}>Seller</option>
+            <option value="buyer" {% if user.profile == 'buyer' %}selected{% endif %}>Buyer</option>
+            <option value="seller" {% if user.profile == 'seller' %}selected{% endif %}>Seller</option>
         </select>
 
         <button type="submit">Update</button>
+    </form>
+
+    <form action="/manage_accounts" method="GET">
+        <button type="submit">Back to Dashboard</button>
     </form>
 </body>
 </html>
