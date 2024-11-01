@@ -12,7 +12,7 @@ class Account:
         return mysql.connector.connect(
             host = 'localhost',
             user = 'root',
-            password = 'roymewex3',
+            password = 'root',
             database = 'flask_app'
         )
 
