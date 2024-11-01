@@ -1,7 +1,7 @@
 from flask import session
 import mysql.connector
 
-
+## This is ENTITY
 class Account:
     def __init__(self, profile_type, email, password):
         self.profile_type = profile_type
@@ -12,60 +12,61 @@ class Account:
         return mysql.connector.connect(
             host = 'localhost',
             user = 'root',
-            password = 'root',
+            password = 'roymewex3',
             database = 'flask_app'
         )
 
-    def verify_login(self):
+    def verify_login(profile_type, email, password):
         conn = Account.create_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE profile = %s AND email = %s',
-                       (self.profile_type, self.email))
+        cursor.execute('SELECT * FROM users WHERE profile = %s AND email = %s', (profile_type, email))
         result = cursor.fetchone()
         cursor.close()
         conn.close()
         
         # Extract the plain text password from the database
-        db_password = result[3]
+        db_password = result[2]
 
         # Check if the provided password matches the stored plain text password
-        if (self.password == db_password):
+        if (password == db_password):
             session['user_id'] = result[0]   # Store user ID in session
             session['name'] = result[1]      # Store user name in session
             return 0
         
         #If the password is incorrect
-        elif (self.password != result[3]):
+        elif (password != result[2]):
             return 1
         
         #If the Email is not registered
         else:
             return 2
     
-    def fetch_name(self):
+    def fetch_name(email):
         conn = Account.create_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT name FROM users WHERE email = %s', [self.email])
+        cursor.execute('SELECT name FROM users WHERE email = %s', [email])
         retrieve_records = cursor.fetchone()
         retrieve_name = retrieve_records[0]
         return retrieve_name
 
-    def create_account(self, name):
-        # Insert user data into the database
+    def create_account(email, name, password, hp_no, status, profile):
+        #Insert user data into database
         conn = Account.create_connection()
         cursor = conn.cursor()
-        data = (self.profile_type, name, self.email, self.password)
-
+        data = (email, name, password, hp_no, status, profile)
+        
+        #Insert new entries into the database
         try:
-            cursor.execute("""INSERT INTO users (profile, name, email, password) VALUES (%s, %s, %s, %s)""", 
-                           data)
+            cursor.execute("""INSERT INTO users (email, name, password, handphone_no, acc_status, profile) 
+                           VALUES (%s, %s, %s, %s, %s, %s)""", data)
             conn.commit()
             return 0
-                    
+        
+        #Error handler from the database
         except mysql.connector.Error as err:
             print(f"Database Error: {err}")
             return 1
-
+        
         finally:
             cursor.close()
             conn.close()

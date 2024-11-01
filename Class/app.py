@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 import os
-from classes.Account import Account
+from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -16,55 +16,47 @@ def initiate():
 def login():
     return render_template('login.html')
 
-# Handling Log in by calling Account
-@app.route('/login', methods = ['POST'])
+# Handling Log in by calling the controller
+@app.route('/login', methods=['POST'])
 def login_user():
     profile = request.form['profile']
     email = request.form['email']
     password = request.form['password']
 
-    if (profile == None) or (email == None) or (password == None):
+    if not all([profile, email, password]):  # Check for None or empty values
         return redirect(url_for('login'))
 
-    verify = Account(profile, email, password)
-
-    checker = Account.verify_login(verify)
+    verify = VerifyLogin(profile, email, password)
+    checker = verify.execute()
 
     if checker == 0:
         session['user_type'] = profile
-        session['name'] = Account.fetch_name(verify)
-        if profile == 'User Admin':
-            return redirect(url_for('dashboard'))
-        elif profile == 'Buyer':
-            return redirect(url_for('Index'))
-        elif profile == 'Seller':
-            return redirect(url_for('Index'))
-        else:
-            return redirect(url_for('Index'))
-
+        fetch_name = FetchName(email)
+        session['name'] = fetch_name.execute()
+        return redirect(url_for('dashboard'))
     elif checker == 1:
-        flash ("Incorrect Email or Password, please try again.","Error")
+        flash("Incorrect Email or Password, please try again.", "Error")
         return redirect(url_for('login'))
     else:
-        flash ("An error has occurred, please try again later.","Error")
+        flash("An error has occurred, please try again later.", "Error")
         return redirect(url_for('login'))
 
 # Route for the dashboard
 @app.route('/dashboard')
 def dashboard():
-    if 'user_id' in session:
-        users = Account.get_all_users()
-        return render_template('dashboard.html', name=session['name'], users = users)
+    if 'user_type' in session:
+        users = GetAllUsers.execute()  # Fetch all users
+        return render_template('dashboard.html', name=session['name'], users=users)
     else:
         flash("You need to login first.")
         return redirect(url_for('login'))
 
 # Route to redirect user admin to create new account 
-@app.route('/register', methods=['POST','GET'])
+@app.route('/register', methods=['POST', 'GET'])
 def create_user():
     return render_template('register.html')
 
-@app.route('/registration', methods=['POST','GET'])
+@app.route('/registration', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
         profile_type = request.form.get('profile_type')
@@ -72,28 +64,29 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Print received data for debugging
-        #print(f"Received data: profile_type={profile_type}, name={name}, email={email}, password={password}")
-
-        new_account = Account(profile_type, email, password)
-        err_check = Account.create_account(new_account, name)
+        new_account = CreateAccount(email, name, password, request.form.get('hp_no'), request.form.get('status'), profile_type)
+        err_check = new_account.execute()
 
         if err_check == 0:
-            flash(f'User account created successfully!', 'success')
-            return render_template('register.html')
-        
+            flash('User account created successfully!', 'success')
+            return redirect(url_for('login'))  # Redirect to login after successful registration
         elif err_check == 1:
-            flash(f"{'Account has already been created'}", 'error')
+            flash("Account has already been created", 'error')
             return render_template('register.html')
-        
         else:
-            return render_template('dashboard.html')
+            flash("An error occurred during registration.", 'error')
+            return render_template('register.html')
+
     return render_template('register.html')
 
 # Route to delete users
 @app.route('/delete', methods=['POST'])
 def delete():
-    return redirect(url_for('delete'))
+    email = request.form.get('email')  # Ensure email is retrieved from the form
+    delete_account = DeleteAccount(email)
+    delete_account.execute()
+    flash("User deleted successfully.")
+    return redirect(url_for('manage_accounts'))
 
 # Route to search users
 @app.route('/search', methods=['POST'])
@@ -102,21 +95,23 @@ def search():
     email = request.form.get('email')
     name = request.form.get('name')
     
-    # Perform the search using Account.search_users
-    filtered_users = Account.search_users(profile_type=profile_type, email=email, name=name)
+    # Perform the search using SearchUsers
+    search_users = SearchUsers(profile_type=profile_type, email=email, name=name)
+    filtered_users = search_users.execute()
     
     return render_template('dashboard.html', users=filtered_users, name=session.get('name'))
 
 # Route to suspend a user
 @app.route('/suspend_user', methods=['POST'])
 def suspend_user():
-    email = request.form.get('email')  # Corrected to retrieve email from form data
-    if email and Account.suspend_account(email):
+    email = request.form.get('email')
+    suspend_account = SuspendAccount(email)
+    
+    if suspend_account.execute():
         flash("User suspended successfully!", "success")
     else:
         flash("Failed to suspend user. Please try again.", "error")
     return redirect(url_for('manage_accounts'))
-
 
 # Route to update a user
 @app.route('/update_user', methods=['POST'])
@@ -133,7 +128,9 @@ def show_update_form():
         new_email = request.form.get('email')  # Get the new email from the form
         profile = request.form.get('profile')
 
-        success = Account.update_account(new_email, name, profile)  # Update the account with the new email
+        update_account = UpdateAccount(new_email, name, profile)
+        success = update_account.execute()
+        
         if success:
             flash("User account updated successfully.", "success")
         else:
@@ -142,10 +139,10 @@ def show_update_form():
 
     # If it's a GET request, fetch user details to autofill the form
     email = session.get('update_email')
-    user_details = Account.get_user_by_email(email)  # Fetch user details by email
+    user_details = GetUserByEmail(email)
+    user = user_details.execute()  # Fetch user details by email
 
-    # Pass the user details to the template
-    return render_template('update_form.html', user=user_details)
+    return render_template('update_form.html', user=user)
 
 # Add descriptions for each profile type
 profile_descriptions = {
@@ -162,18 +159,15 @@ def view_profiles():
     description = None
 
     if request.method == 'POST':
-        # Get the selected profile from the dropdown
         selected_profile = request.form.get('profile_type')
         description = profile_descriptions.get(selected_profile, "No description available for this profile.")
 
     return render_template('view_profiles.html', profile_types=profile_descriptions.keys(),
                            selected_profile=selected_profile, description=description)
 
-
 # Route for Manage Accounts page
 @app.route('/manage_accounts', methods=['GET'])
 def manage_accounts():
-    # Render the manage accounts page
     return render_template('manage_accounts.html')
 
 # Route to handle user logout
@@ -190,10 +184,10 @@ def search_accounts():
     email = request.form.get('email')
     
     # Use Account.search_users() method to filter based on input
-    filtered_users = Account.search_users(profile_type=profile_type, email=email, name=name)
+    search_users = SearchUsers(profile_type=profile_type, email=email, name=name)
+    filtered_users = search_users.execute()
     
     return render_template('manage_accounts.html', users=filtered_users)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

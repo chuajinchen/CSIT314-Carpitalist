@@ -53,7 +53,7 @@
         <!-- Buyer Column -->
         <div class="user-column">
             <h2>Buyers</h2>
-            {% for user in users if user['profile'] == "buyer" %}
+            {% for user in users if user['profile'] == "Buyer" %}
                 <div class="user-card">
                     <p><strong>Name:</strong> {{ user['name'] }}</p>
                     <p><strong>Email:</strong> {{ user['email'] }}</p>
@@ -64,7 +64,7 @@
         <!-- Seller Column -->
         <div class="user-column">
             <h2>Sellers</h2>
-            {% for user in users if user['profile'] == "seller" %}
+            {% for user in users if user['profile'] == "Seller" %}
                 <div class="user-card">
                     <p><strong>Name:</strong> {{ user['name'] }}</p>
                     <p><strong>Email:</strong> {{ user['email'] }}</p>
@@ -75,7 +75,7 @@
         <!-- Used Car Agent Column -->
         <div class="user-column">
             <h2>Used Car Agents</h2>
-            {% for user in users if user['profile'] == "used car agent" %}
+            {% for user in users if user['profile'] == "Used Car Agent" %}
                 <div class="user-card">
                     <p><strong>Name:</strong> {{ user['name'] }}</p>
                     <p><strong>Email:</strong> {{ user['email'] }}</p>
