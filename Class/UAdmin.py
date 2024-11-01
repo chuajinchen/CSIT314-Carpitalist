@@ -54,8 +54,27 @@ class UAdmin(Account):
         return 'Profile updated'
     
     #Function for user admin to create account
-    def createAccount():
-        return 'Account Created'
+    def createAccount(self):
+        #Insert user data into database
+        conn = Account.create_connection()
+        cursor = conn.cursor()
+        data = (self.email, self.name, self.password, self.hp_no, self.status, self.profile)
+        
+        #Insert new entries into the database
+        try:
+            cursor.execute("""INSERT INTO users (email, name, password, handphone_no, acc_status, profile) 
+                           VALUES (%s, %s, %s, %s, %s, %s)""", data)
+            conn.commit()
+            return 0
+        
+        #Error handler from the database
+        except mysql.connector.Error as err:
+            print(f"Database Error: {err}")
+            return 1
+        
+        finally:
+            cursor.close()
+            conn.close()
     
     #Function for user admin to update account
     def updateAccount():
