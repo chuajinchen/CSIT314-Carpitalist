@@ -1,6 +1,3 @@
--- CREATE DATABASE DATABASE_NAME
--- USE DATABASE_NAME
-
 -- Profile
 CREATE TABLE profile(
     id int NOT NULL AUTO_INCREMENT,
@@ -64,5 +61,3 @@ CREATE TABLE car_list(
     FOREIGN KEY(email) REFERENCES users(email),
     FOREIGN KEY(brand) REFERENCES car_brand(name)
 );
-
-
