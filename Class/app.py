@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 import os
 from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail
+from UCAgent import UCAgent  # Correct import
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -69,7 +70,42 @@ def dashboard_uca():
     else:
         flash("You need to login first or do not have permission to access this page.")
         return redirect(url_for('login'))
+    
+# Route to display the create car listing form
+@app.route('/create_car_listing', methods=['GET'])
+def show_create_car_listing_form():
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        return render_template('create_car_listing.html')
+    else:
+        flash("You need to login first or do not have permission to access this page.")
+        return redirect(url_for('login'))
 
+# Route to handle form submission
+@app.route('/create_car_listing', methods=['POST'])
+def create_car_listing():
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        reg_no = request.form.get('reg_no')
+        brand = request.form.get('brand')
+        make = request.form.get('make')
+        car_type = request.form.get('type')
+        color = request.form.get('color')
+        price = request.form.get('price')
+        mileage = request.form.get('mileage')
+        descript = request.form.get('description')
+        email = session.get('name')  # Assume the email or agent identifier is stored in the session
+
+        # Call the UCAgent function
+        result = UCAgent.create_car_listing(reg_no, brand, make, car_type, color, price, mileage, descript, email)
+
+        if result == 0:
+            flash("Car listing created successfully!", "success")
+            return redirect(url_for('dashboard_uca'))
+        else:
+            flash("Failed to create car listing. Please try again.", "error")
+            return redirect(url_for('show_create_car_listing_form'))
+
+    flash("You need to login first.")
+    return redirect(url_for('login'))
 
 # Route to redirect user admin to create new account 
 @app.route('/register', methods=['POST', 'GET'])
