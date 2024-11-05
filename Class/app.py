@@ -33,13 +33,22 @@ def login_user():
         session['user_type'] = profile
         fetch_name = FetchName(email)
         session['name'] = fetch_name.execute()
-        return redirect(url_for('dashboard'))
+
+        # Redirect to the appropriate dashboard based on profile type
+        if profile == 'User Admin':
+            return redirect(url_for('dashboard'))
+        elif profile == 'Used Car Agent':
+            return redirect(url_for('dashboard_uca'))
+        else:
+            flash("Invalid profile type.", "Error")
+            return redirect(url_for('login'))
     elif checker == 1:
         flash("Incorrect Email or Password, please try again.", "Error")
         return redirect(url_for('login'))
     else:
         flash("An error has occurred, please try again later.", "Error")
         return redirect(url_for('login'))
+
 
 # Route for the dashboard
 @app.route('/dashboard')
@@ -50,6 +59,17 @@ def dashboard():
     else:
         flash("You need to login first.")
         return redirect(url_for('login'))
+
+# Route to Used Car Agent dashboard    
+@app.route('/dashboard_uca')
+def dashboard_uca():
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        # You can add additional logic if needed, such as fetching data specific to the agent
+        return render_template('dashboard_uca.html', name=session['name'])
+    else:
+        flash("You need to login first or do not have permission to access this page.")
+        return redirect(url_for('login'))
+
 
 # Route to redirect user admin to create new account 
 @app.route('/register', methods=['POST', 'GET'])
