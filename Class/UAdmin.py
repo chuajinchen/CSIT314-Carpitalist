@@ -8,8 +8,45 @@ class UAdmin(Account):
         self.profile = 'User Admin'
 
     #Function for user admin to create profiles
-    def createProfile():
-        return 'Success'
+       
+    def create_profile(profile_type, search_cars="yes", view_cars="yes", list_cars="yes"):
+        # Establish a database connection
+        conn = create_connection()
+        if conn is None:
+            print("Failed to connect to database.")
+            return "Database connection error"
+    
+        cursor = conn.cursor()
+    
+        try:
+            # Insert a new profile
+            insert_query = """
+            INSERT INTO profile (profile_type, search_cars, view_cars, list_cars)
+            VALUES (%s, %s, %s, %s)"""
+            data = (profile_type, search_cars, view_cars, list_cars)
+            cursor.execute(insert_query, data)
+        
+            # Commit changes to the database
+            conn.commit()
+        
+            print(f"Profile '{profile_type}' created successfully.")
+            return "Profile created successfully"
+        
+        except mysql.connector.Error as err:
+            # Handle specific MySQL errors
+            if err.errno == 1062:
+                print("Error: Profile with this type already exists.")
+                return "Profile with this type already exists"
+            else:
+                print(f"Database Error: {err}")
+                return "Failed to create profile"
+    
+        finally:
+            # Close the cursor and connection
+            cursor.close()
+            conn.close()
+
+            return 'Success'
     
     #Function for user admin to view profiles
     def viewProfile():
