@@ -80,3 +80,10 @@ class GetUserByEmail:
 
     def execute(self):
         return Account.get_user_by_email(self.email)
+
+class createProfile:
+    def __init__(self, name)
+        self.name = name
+
+    def execute(self)
+        return UAdmin.create_profile(self.name, 'yes', 'yes', 'yes')
