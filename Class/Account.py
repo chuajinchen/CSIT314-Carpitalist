@@ -84,16 +84,17 @@ class Account:
     def get_all_users():
         conn = Account.create_connection()
         cursor = conn.cursor(dictionary=True)  # Return data as dictionaries
-        cursor.execute("SELECT profile, name, email FROM users")
+        cursor.execute("SELECT profile, name, email, acc_status FROM users") 
         users = cursor.fetchall()
         cursor.close()
         conn.close()
         return users
+
     
-    def search_users(profile_type=None, email=None, name=None):
+    def search_users(profile_type=None, email=None, name=None, status=None):
         conn = Account.create_connection()
         cursor = conn.cursor(dictionary=True)  # Returns results as dictionaries
-        query = "SELECT profile, name, email FROM users WHERE 1=1"
+        query = "SELECT profile, name, email, acc_status FROM users WHERE 1=1"
         params = []
 
         # Build query dynamically based on provided parameters
@@ -109,17 +110,22 @@ class Account:
             query += " AND name LIKE %s"
             params.append(f"%{name}%")  # Partial match for name
 
+        if status:
+            query += " AND acc_status = %s"
+            params.append(status)
+
         cursor.execute(query, params)
         users = cursor.fetchall()
         cursor.close()
         conn.close()
         return users
 
+
     def suspend_account(email):
         conn = Account.create_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("UPDATE users SET status = 'suspended' WHERE email = %s", (email,))
+            cursor.execute("UPDATE users SET acc_status = 'suspended' WHERE email = %s", (email,))
             conn.commit()
             return True
         except mysql.connector.Error as err:
@@ -129,11 +135,12 @@ class Account:
             cursor.close()
             conn.close()
 
-    def update_account(email, name, profile):
+
+    def update_account(email, name, status, profile):
         conn = Account.create_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("UPDATE users SET name = %s, profile = %s WHERE email = %s", (name, profile, email))
+            cursor.execute("UPDATE users SET name = %s, profile = %s, acc_status = %s WHERE email = %s", (name, profile, status, email)) 
             conn.commit()
             return True
         except mysql.connector.Error as err:

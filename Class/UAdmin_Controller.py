@@ -47,13 +47,14 @@ class GetAllUsers:
 
 
 class SearchUsers:
-    def __init__(self, profile_type=None, email=None, name=None):
+    def __init__(self, profile_type=None, email=None, name=None, status=None):
         self.profile_type = profile_type
         self.email = email
         self.name = name
+        self.status = status 
 
     def execute(self):
-        return Account.search_users(self.profile_type, self.email, self.name)
+        return Account.search_users(self.profile_type, self.email, self.name, self.status)  
 
 
 class SuspendAccount:
@@ -65,13 +66,14 @@ class SuspendAccount:
 
 
 class UpdateAccount:
-    def __init__(self, email, name, profile):
+    def __init__(self, email, name, status, profile):
         self.email = email
         self.name = name
+        self.status = status
         self.profile = profile
 
     def execute(self):
-        return Account.update_account(self.email, self.name, self.profile)
+        return Account.update_account(self.email, self.name, self.profile, self.status)
 
 
 class GetUserByEmail:
@@ -80,10 +82,3 @@ class GetUserByEmail:
 
     def execute(self):
         return Account.get_user_by_email(self.email)
-
-class createProfile:
-    def __init__(self, name)
-        self.name = name
-
-    def execute(self)
-        return UAdmin.create_profile(self.name, 'yes', 'yes', 'yes')

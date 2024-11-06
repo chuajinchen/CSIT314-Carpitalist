@@ -120,7 +120,7 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        new_account = CreateAccount(email, name, password, request.form.get('hp_no'), request.form.get('status'), profile_type)
+        new_account = CreateAccount(email, name, password, request.form.get('hp_no'), request.form.get('acc_status'), profile_type)
         err_check = new_account.execute()
 
         if err_check == 0:
@@ -157,12 +157,14 @@ def search():
     
     return render_template('dashboard.html', users=filtered_users, name=session.get('name'))
 
-# Route to suspend a user
 @app.route('/suspend_user', methods=['POST'])
 def suspend_user():
     email = request.form.get('email')
+    if not email:
+        print("No email provided!")  # Log if email is not passed
+    else:
+        print(f"Suspending user with email: {email}")
     suspend_account = SuspendAccount(email)
-    
     if suspend_account.execute():
         flash("User suspended successfully!", "success")
     else:
@@ -183,8 +185,9 @@ def show_update_form():
         name = request.form.get('name')
         new_email = request.form.get('email')  # Get the new email from the form
         profile = request.form.get('profile')
+        status = request.form.get('status')
 
-        update_account = UpdateAccount(new_email, name, profile)
+        update_account = UpdateAccount(new_email, name, profile, status)
         success = update_account.execute()
         
         if success:
@@ -238,12 +241,34 @@ def search_accounts():
     profile_type = request.form.get('profile_type')
     name = request.form.get('name')
     email = request.form.get('email')
+    status = request.form.get('status')
     
     # Use Account.search_users() method to filter based on input
-    search_users = SearchUsers(profile_type=profile_type, email=email, name=name)
+    search_users = SearchUsers(profile_type=profile_type, email=email, name=name, status = status)
     filtered_users = search_users.execute()
     
     return render_template('manage_accounts.html', users=filtered_users)
+
+
+#######################################################
+#               Used Car Agent Routes                 #
+#######################################################
+
+# Route to view car listings
+@app.route('/view_listings', methods=['GET'])
+def view_listings():
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        car_listings = UCAgent.get_car_listings()  # Fetch listings from UCAgent
+        if car_listings is None:
+            flash("Failed to load car listings. Please try again later.", "error")
+            return redirect(url_for('dashboard_uca'))
+
+        return render_template('view_car_listings.html', car_listings=car_listings)
+
+    else:
+        flash("You need to login first or do not have permission to access this page.")
+        return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

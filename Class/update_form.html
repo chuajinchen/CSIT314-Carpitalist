@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update User</title>
+    <!-- <style>
+        /* Styling for Back to Dashboard button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* General form styling */
+        form {
+            margin: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        select, input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[readonly] {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+    </style> -->
+</head>
+<body>
+    <!-- Back to Dashboard Button -->
+    <form action="/manage_accounts" method="GET">
+        <button type="submit" class="back-button">Back to Dashboard</button>
+    </form>
+
+    <h2>Update User Information</h2>
+
+    <!-- Update Form -->
+    <form method="POST" action="{{ url_for('show_update_form') }}">
+        <p>Current Status: {{ user.status }}</p>
+        <!-- Name Field (Uneditable) -->
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ user.name }}" readonly>
+
+        <!-- Email Field (Uneditable) -->
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ user.email }}" readonly>
+
+        <!-- Profile Dropdown -->
+        <label for="profile">Profile:</label>
+        <select id="profile" name="profile" required>
+            <option value="User Admin" {% if user.profile|lower == 'user admin' %}selected{% endif %}>User Admin</option>
+            <option value="Buyer" {% if user.profile|lower == 'buyer' %}selected{% endif %}>Buyer</option>
+            <option value="Seller" {% if user.profile|lower == 'seller' %}selected{% endif %}>Seller</option>
+        </select>
+
+        <!-- Status Dropdown (Case-Insensitive) -->
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <!-- Case insensitive comparison using lower() -->
+            <option value="Active" {% if user.acc_status|lower == 'active' %}selected{% endif %}>Active</option>
+            <option value="Suspended" {% if user.acc_status|lower == 'suspended' %}selected{% endif %}>Suspended</option>
+        </select>
+
+
+        <!-- Submit Button -->
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>
