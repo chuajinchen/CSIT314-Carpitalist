@@ -269,6 +269,43 @@ def view_listings():
         flash("You need to login first or do not have permission to access this page.")
         return redirect(url_for('login'))
 
+# Route to display the update form for a specific car listing
+@app.route('/update_car_listing/<reg_no>', methods=['GET'])
+def show_update_car_listing_form(reg_no):
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        # Fetch the car details to pre-fill the form
+        car_details = UCAgent.get_car_by_reg_no(reg_no)
+        if not car_details:
+            flash("Failed to retrieve car details. Please try again.", "error")
+            return redirect(url_for('view_listings'))
+        
+        return render_template('update_car_listing.html', car=car_details)
+    else:
+        flash("You need to log in first or do not have permission to access this page.")
+        return redirect(url_for('login'))
+
+# Route to handle the form submission for updating car listing
+@app.route('/update_car_listing/<reg_no>', methods=['POST'])
+def update_car_listing(reg_no):
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        # Retrieve form data
+        new_price = request.form.get('price')
+        new_status = request.form.get('status')
+        new_description = request.form.get('description')
+
+        # Call method to update the car listing
+        result = UCAgent.update_car_listing(reg_no, new_price, new_status, new_description)
+        
+        if result == 0:
+            flash("Car listing updated successfully!", "success")
+        else:
+            flash("Failed to update car listing. Please try again.", "error")
+        
+        return redirect(url_for('view_listings'))
+    
+    flash("You need to log in first.")
+    return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

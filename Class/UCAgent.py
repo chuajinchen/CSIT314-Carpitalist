@@ -52,12 +52,58 @@ class UCAgent(Account):
         return 'Deleted'
     
     #Function for Used Car Agent to update listed vehicles info
-    def updateListing():
-        return 'Listing Updated'
+    
+    # Function to update car listing details
+    @staticmethod
+    def update_car_listing(reg_no, price, status, description):
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to the database.")
+            return 1
+
+        try:
+            cursor = conn.cursor()
+            query = "UPDATE car_list SET price = %s, sale_status = %s, descrip = %s WHERE reg_no = %s"
+            cursor.execute(query, (price, status, description, reg_no))
+            conn.commit()
+            print("Car listing updated successfully!")
+            return 0  # Success
+
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return 1  # Failure
+
+        finally:
+            cursor.close()
+            conn.close()
     
     #Function for Used Car Agent to view car listing
-    def viewListing():
-        return 'List of vehicles'
+    @staticmethod
+    def get_car_listings():
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to the database.")
+            return None
+
+        try:
+            cursor = conn.cursor(dictionary=True)
+            query = """
+                SELECT reg_no, brand, type, color, price, mileage, descrip, sale_status, viewCount, shortlistCount
+                FROM car_list
+                ORDER BY id DESC
+                LIMIT 30
+            """
+            cursor.execute(query)
+            car_listings = cursor.fetchall()  # Fetch up to 30 car listings
+            return car_listings
+
+        except Error as e:
+            print(f"Database error: {e}")
+            return None
+
+        finally:
+            cursor.close()
+            conn.close()
     
     #Function for Used Car Agent to search listing
     def searchListing():
@@ -66,3 +112,26 @@ class UCAgent(Account):
     #Function for Used Car Agent to see own reviews
     def seeReview():
         return 'My reviews'
+    
+    # Function to get car details by registration number
+    @staticmethod
+    def get_car_by_reg_no(reg_no):
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to the database.")
+            return None
+
+        try:
+            cursor = conn.cursor(dictionary=True)
+            query = "SELECT reg_no, brand, type, color, price, mileage, descrip, sale_status FROM car_list WHERE reg_no = %s"
+            cursor.execute(query, (reg_no,))
+            car_details = cursor.fetchone()  # Fetch the car details
+            return car_details
+
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return None
+
+        finally:
+            cursor.close()
+            conn.close()
