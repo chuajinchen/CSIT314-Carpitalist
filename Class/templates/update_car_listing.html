@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Car Listing</title>
+
+    <style>
+        /* Basic styling for the page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Centered container with padding */
+        .listing-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input[type="text"], select, textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px; 
+        }
+
+        textarea {
+            height: 150px; 
+            resize: vertical; 
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center; 
+            gap: 10px; 
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            transition: background-color 0.3s; 
+        }
+
+        .update { background-color: #4CAF50; }
+        .update:hover { background-color: #45a049; }
+        
+        .delete { background-color: #f44336; }
+        .delete:hover { background-color: #d32f2f; }
+    </style>
+</head>
+<body>
+
+    <h1>Update Car Listing</h1>
+
+    <form id="car-listing-form" action="{{ url_for('update_car_listing', reg_no=car['reg_no']) }}" method="POST">
+        <div>
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand" name="brand" value="{{ car['brand'] }}" readonly>
+        </div>
+
+        <div>
+            <label for="type">Type:</label>
+            <input type="text" id="type" name="type" value="{{ car['type'] }}" readonly>
+        </div>
+
+        <div>
+            <label for="price">Price:</label>
+            <input type="text" id="price" name="price" value="{{ car['price'] }}">
+        </div>
+
+        <div>
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="Available" {% if car['sale_status'] == 'Available' %}selected{% endif %}>Available</option>
+                <option value="Sold" {% if car['sale_status'] == 'Sold' %}selected{% endif %}>Sold</option>
+                <option value="Pending" {% if car['sale_status'] == 'Pending' %}selected{% endif %}>Pending</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description">{{ car['descrip'] }}</textarea>
+        </div>
+
+        <div class="buttons">
+            <button type="submit" class="update" onclick="return confirmUpdate()">Update Listing</button>
+            <button type="button" onclick="window.location.href='/view_listings'">Cancel</button>
+        </div>
+    </form>
+
+    <script>
+        function confirmUpdate() {
+            // Display a confirmation dialog
+            const userConfirmed = confirm("Are you sure you want to update this car listing?");
+            return userConfirmed;  // If true, the form will be submitted, otherwise not
+        }
+    </script>
+
+</body>
+</html>
