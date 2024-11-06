@@ -88,7 +88,11 @@
             <input type="email" id="email" name="email" placeholder="Enter email">
 
             <label for="status">Status:</label>
-            <input type="text" id="status" name="status" placeholder="Enter status">
+            <select id="status" name="status">
+                <option value="">Select Status</option>
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+            </select>
 
             <button type="submit">Search</button>
             <a href="/dashboard">
