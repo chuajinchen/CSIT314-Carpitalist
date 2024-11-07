@@ -55,9 +55,11 @@ CREATE TABLE car_list(
     sale_status VARCHAR(255) DEFAULT 'available',
     viewCount INT DEFAULT 0,
     shortlistCount INT DEFAULT 0,
-    email VARCHAR(255),
+    agent_email VARCHAR(255)
+    seller_email VARCHAR(255),
     PRIMARY KEY (id, reg_no),
     FOREIGN KEY(make_id) REFERENCES car_model(id),
-    FOREIGN KEY(email) REFERENCES users(email),
+    FOREIGN KEY(agent_email) REFERENCES users(email),
+    FOREIGN KEY(seller_email) REFERENCES users(email),
     FOREIGN KEY(brand) REFERENCES car_brand(name)
 );
