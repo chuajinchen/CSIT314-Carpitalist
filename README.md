@@ -39,6 +39,7 @@ Follow the instructions below to set up the project locally.
    - Install the required Python dependencies using pip:
 
      ```bash
+     cd class
      py -m venv env
      source env/bin/activate
      pip install -r requirements.txt
