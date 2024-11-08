@@ -118,14 +118,16 @@ def register():
         profile_type = request.form.get('profile_type')
         name = request.form.get('name')
         email = request.form.get('email')
+        hp_no = request.form.get('hp_no')
         password = request.form.get('password')
+        status = 'Active'
 
-        new_account = CreateAccount(email, name, password, request.form.get('hp_no'), request.form.get('acc_status'), profile_type)
+        new_account = CreateAccount(email, name, password, hp_no, status, profile_type)
         err_check = new_account.execute()
 
         if err_check == 0:
             flash('User account created successfully!', 'success')
-            return redirect(url_for('login'))  # Redirect to login after successful registration
+            return redirect(url_for('login'))  # Redirect to back to register after successful registration
         elif err_check == 1:
             flash("Account has already been created", 'error')
             return render_template('register.html')
