@@ -21,12 +21,15 @@
         <!-- View Description and Back to Dashboard Buttons -->
         <button type="submit">View Description</button>
         <a href="/dashboard"><button type="button">Back to Dashboard</button></a>
+        <button>Create Profile</button>
     </form>
 
     <!-- Display the selected profile and description -->
     {% if selected_profile %}
-        <h2>{{ selected_profile }}</h2>
-        <p>{{ description }}</p>
+        <input type="text" name="" id="" value="{{selected_profile}}">
+        <textarea>{{ description }}</textarea>
+        <button>Update Profile</button>
+        <button>Suspend Profile</button>
     {% endif %}
 </body>
 </html>
