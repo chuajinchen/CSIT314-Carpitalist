@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reviews</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <h1>My Reviews</h1>
+        <button onclick="window.location.href='/dashboard_uca'">Return to Dashboard</button>
+    </header>
+
+    <main>
+        <section class="reviews-list">
+            {% if reviews %}
+                <ul>
+                    {% for review in reviews %}
+                        <li>
+                            <p><strong>Rating:</strong> {{ review.rating }} / 5.0</p>
+                            <p><strong>Description:</strong> {{ review.descript }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reviews available.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Used Car Agent Dashboard. All rights reserved.</p>
+    </footer>
+</body>
+</html>
