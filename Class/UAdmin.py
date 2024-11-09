@@ -9,7 +9,7 @@ class UAdmin(Account):
 
     #Function for user admin to create profiles
        
-    def create_profile(profile_type, search_cars="yes", view_cars="yes", list_cars="yes"):
+    def create_profile(profile_type, search_cars="yes", view_cars="yes", list_cars="yes",description=""):
         # Establish a database connection
         conn = Account.create_connection()
         if conn is None:
@@ -21,9 +21,9 @@ class UAdmin(Account):
         try:
             # Insert a new profile
             insert_query = """
-            INSERT INTO profile (profile_type, search_cars, view_cars, list_cars)
+            INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,description)
             VALUES (%s, %s, %s, %s)"""
-            data = (profile_type, search_cars, view_cars, list_cars)
+            data = (profile_type, search_cars, view_cars, list_cars,description)
             cursor.execute(insert_query, data)
         
             # Commit changes to the database

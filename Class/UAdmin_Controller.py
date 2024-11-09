@@ -83,3 +83,30 @@ class GetUserByEmail:
 
     def execute(self):
         return Account.get_user_by_email(self.email)
+    
+class createProfile:
+    def __init__(self,profile_type, search_cars="yes", view_cars="yes", list_cars="yes",description=""):
+        self.profile_type = profile_type
+        self.search_cars = search_cars
+        self.view_cars = view_cars
+        self.list_cars = list_cars
+        self.description = description
+    
+    def execute(self):
+        return UAdmin.create_profile(self.profile_type, self.search_cars, self.view_cars, self.list_cars,self.description)
+
+class updateProfile:
+    def __init__(self,oldprofile,newprofile,description):
+        self.oldprof =oldprofile
+        self.newprof =newprofile
+        self.description = description
+    
+    def execute(self):
+        return UAdmin.updateProfile(self.oldprof,self.newprof,self.description)
+
+class suspendProfile:
+    def __init__(self,profile):
+        self.prof=profile
+    
+    def execute(self):
+        return UAdmin.suspendProfile(self.prof)

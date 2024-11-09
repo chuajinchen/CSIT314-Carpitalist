@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 import os
-from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail
+from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail,createProfile,updateProfile,suspendProfile
 from UCAgent import UCAgent  # Correct import
 
 # Initialize the Flask application
@@ -214,6 +214,7 @@ profile_descriptions = {
 }
 
 # Route to view profiles with descriptions
+# Route to view profiles
 @app.route('/view_profiles', methods=['GET', 'POST'])
 def view_profiles():
     selected_profile = None
@@ -223,10 +224,50 @@ def view_profiles():
         selected_profile = request.form.get('profile_type')
         description = profile_descriptions.get(selected_profile, "No description available for this profile.")
 
-    return render_template('view_profiles.html', profile_types=profile_descriptions.keys(),
-                           selected_profile=selected_profile, description=description)
+    return render_template('view_profiles.html', 
+                           profile_types=profile_descriptions.keys(),
+                           selected_profile=selected_profile, 
+                           description=description)
 
-# Route for Manage Accounts page
+# Route to display the create profile form
+@app.route('/create_profile', methods=['GET', 'POST'])
+def create_profile():
+    if request.method == 'POST':
+        profile_type = request.form.get('profile_type')
+        description = request.form.get('description')
+        
+        # Check if profile already exists and add it if it doesn't
+        if profile_type and profile_type not in profile_descriptions:
+            newprof = createProfile(profile_type,"yes","yes","yes",description)
+            newprof.execute();
+        return redirect(url_for('view_profiles'))
+    
+    return render_template('create_profile.html')
+
+# Route to update profile
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    profile_to_update = request.form.get('update')
+    oldprofile_type = request.form.get('profile_type')
+    profile_type = request.form.get('profile_name')
+    description = request.form.get('description')
+    if profile_to_update:
+        # Update the profile description or other attributes here
+        updateProf = updateProfile(oldprofile_type,profile_type,description)
+        updateProf.execute();
+        return redirect(url_for('view_profiles'))
+    return redirect(url_for('view_profiles'))
+
+# Route to suspend profile
+@app.route('/suspend_profile', methods=['POST'])
+def suspend_profile():
+    profile_to_suspend = request.form.get('suspend')
+    if profile_to_suspend:
+        # Suspend or remove the profile here
+        susprof = suspendProfile(profile_to_suspend)
+        susprof.execute();
+        return redirect(url_for('view_profiles'))
+    return redirect(url_for('view_profiles'))
 @app.route('/manage_accounts', methods=['GET'])
 def manage_accounts():
     return render_template('manage_accounts.html')

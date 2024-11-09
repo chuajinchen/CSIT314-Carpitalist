@@ -18,18 +18,21 @@
             {% endfor %}
         </select>
         
-        <!-- View Description and Back to Dashboard Buttons -->
+        <!-- Submit button to view description -->
         <button type="submit">View Description</button>
         <a href="/dashboard"><button type="button">Back to Dashboard</button></a>
-        <button>Create Profile</button>
     </form>
 
-    <!-- Display the selected profile and description -->
+    <!-- Display the selected profile and description if available -->
     {% if selected_profile %}
-        <input type="text" name="" id="" value="{{selected_profile}}">
-        <textarea>{{ description }}</textarea>
-        <button>Update Profile</button>
-        <button>Suspend Profile</button>
+        <input type="text" value="{{ selected_profile }}" id="profile_name">
+        <textarea >{{ description }}</textarea>
+        <form method="POST" action="/update_profile">
+            <button type="submit" name="update" value="{{ selected_profile }}">Update Profile</button>
+        </form>
+        <form method="POST" action="/suspend_profile">
+            <button type="submit" name="suspend" value="{{ selected_profile }}">Suspend Profile</button>
+        </form>
     {% endif %}
 </body>
 </html>
