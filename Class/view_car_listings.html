@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Car Listings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <style>
+        /* Existing styles */
+        .listing-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+        }
+        .car-listing {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fafafa;
+            justify-content: space-between;
+        }
+        .car-listing img {
+            width: 150px;
+            height: auto;
+            border-radius: 8px;
+            margin-right: 16px;
+        }
+        .car-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .car-info h3 {
+            margin: 0;
+            font-size: 1.25em;
+            color: #333;
+        }
+        .car-info p {
+            margin: 4px 0;
+            color: #555;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .buttons button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buttons button:hover {
+            background-color: #45a049;
+        }
+        .buttons .delete {
+            background-color: #f44336;
+        }
+        .buttons .delete:hover {
+            background-color: #e53935;
+        }
+        
+        /* Styling for the search form */
+        .search-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .search-form input, .search-form button {
+            padding: 8px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-buttons">
+            <button onclick="window.location.href='/create_car_listing'">Create New Car Listing</button>
+            <button onclick="window.location.href='/dashboard_uca'">Return to Dashboard</button>
+        </div>
+        <h1>Car Listings</h1>
+        
+        <!-- Search Form (Compact) -->
+        <form class="search-form" action="/search_listings" method="GET">
+            <label for="make">Car Make:</label>
+            <input type="text" id="make" name="make" placeholder="e.g., Toyota" size="10">
+
+            <label for="min_price">Min Price:</label>
+            <input type="number" id="min_price" name="min_price" placeholder="0" min="0" size="5">
+
+            <label for="max_price">Max Price:</label>
+            <input type="number" id="max_price" name="max_price" placeholder="100000" min="0" size="7">
+
+            <button type="submit">Search</button>
+        </form>
+
+
+        <p>Browse through your car listings below.</p>
+    </header>
+
+    <main>
+        <section class="car-listings">
+            <div class="listing-container">
+                {% for car in car_listings %}
+                <div class="car-listing">
+                    <img src="{{ url_for('static', filename='images/cars/' + car.reg_no + '.jpg') }}" alt="{{ car.brand }} {{ car.type }}">
+                    <div class="car-info">
+                        <h3>{{ car.brand }} {{ car.type }}</h3>
+                        <p><strong>Price:</strong> ${{ car.price }}</p>
+                        <p><strong>Color:</strong> {{ car.color }}</p>
+                        <p><strong>Mileage:</strong> {{ car.mileage }} miles</p>
+                        <p><strong>Status:</strong> {{ car.sale_status }}</p>
+                        <p><strong>View Count:</strong> {{ car.viewCount }}</p>
+                        <p><strong>Shortlist Count:</strong> {{ car.shortlistCount }}</p>
+                        <p><strong>Description:</strong> {{ car.descrip }}</p>
+                    </div>
+                    <div class="buttons">
+                        <button onclick="window.location.href='/update_car_listing/{{ car.reg_no }}'">Update</button>
+                        <button class="delete" onclick="window.location.href='/delete_car_listing/{{ car.reg_no }}'">Delete</button>
+                    </div>
+                </div>
+                {% else %}
+                <p>No car listings available.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Used Car Agent Dashboard. All rights reserved.</p>
+    </footer>
+</body>
+</html>
