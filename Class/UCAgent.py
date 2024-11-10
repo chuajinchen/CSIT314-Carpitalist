@@ -163,8 +163,33 @@ class UCAgent(Account):
             conn.close()
 
     #Function for Used Car Agent to see own reviews
-    def seeReview():
-        return 'My reviews'
+    @staticmethod
+    def get_reviews(agent_email):
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to the database.")
+            return None
+
+        try:
+            cursor = conn.cursor(dictionary=True)
+            query = """
+                SELECT rating, descript
+                FROM review_list
+                WHERE agent_email = %s
+                ORDER BY id DESC
+            """
+            cursor.execute(query, (agent_email,))
+            reviews = cursor.fetchall()  # Fetch all reviews for the agent
+            return reviews
+
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return None
+
+        finally:
+            cursor.close()
+            conn.close()
+    
      # Function to get car details by registration number
     @staticmethod
     def get_car_by_reg_no(reg_no):
