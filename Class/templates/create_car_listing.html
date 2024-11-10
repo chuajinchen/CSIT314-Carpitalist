@@ -17,7 +17,14 @@
             <input type="text" id="reg_no" name="reg_no" required>
 
             <label for="brand">Brand:</label>
-            <input type="text" id="brand" name="brand" required>
+            <select id="brand" name="brand" required>
+                <option value="">Select a brand</option>
+                <option value="Toyota">Toyota</option>
+                <option value="Honda">Honda</option>
+                <option value="Ford">Ford</option>
+                <option value="BMW">BMW</option>
+                <option value="Audi">Audi</option>
+            </select>
 
             <label for="make">Make:</label>
             <input type="text" id="make" name="make" required>
@@ -37,7 +44,17 @@
             <label for="description">Description:</label>
             <textarea id="description" name="description" required></textarea>
 
+            <label for="email">Seller Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="agent_email">Agent Email:</label>
+            <input type="email" id="agent_email" name="agent_email" required>
+
             <button type="submit">Create Listing</button>
+        </form>
+
+        <form action="{{ url_for('dashboard_uca') }}" method="get" style="margin-top: 20px;">
+            <button type="submit">Back to Dashboard</button>
         </form>
     </main>
 

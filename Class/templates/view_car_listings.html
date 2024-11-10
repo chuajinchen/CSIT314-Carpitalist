@@ -6,7 +6,7 @@
     <title>View Car Listings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
     <style>
-        /* Container for all listings */
+        /* Existing styles */
         .listing-container {
             display: flex;
             flex-direction: column;
@@ -14,8 +14,6 @@
             align-items: center;
             padding: 20px;
         }
-
-        /* Individual car listing card */
         .car-listing {
             display: flex;
             flex-direction: row;
@@ -29,40 +27,31 @@
             background-color: #fafafa;
             justify-content: space-between;
         }
-
-        /* Car image styling */
         .car-listing img {
             width: 150px;
             height: auto;
             border-radius: 8px;
             margin-right: 16px;
         }
-
-        /* Car information styling */
         .car-info {
             display: flex;
             flex-direction: column;
             flex-grow: 1;
         }
-
         .car-info h3 {
             margin: 0;
             font-size: 1.25em;
             color: #333;
         }
-
         .car-info p {
             margin: 4px 0;
             color: #555;
         }
-
-        /* Button styling */
         .buttons {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-
         .buttons button {
             padding: 8px 16px;
             font-size: 0.9em;
@@ -73,37 +62,27 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
         .buttons button:hover {
             background-color: #45a049;
         }
-
         .buttons .delete {
             background-color: #f44336;
         }
-
         .buttons .delete:hover {
             background-color: #e53935;
         }
-
-        /* Footer styling */
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9em;
-            color: #777;
-            border-top: 1px solid #ddd;
-        }
-
-        /* Top buttons container */
-        .top-buttons {
+        
+        /* Styling for the search form */
+        .search-form {
             display: flex;
-            justify-content: space-between;
-            padding: 20px;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
         }
-
-        .top-buttons button {
-            font-size: 1.1em;
+        .search-form input, .search-form button {
+            padding: 8px;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -114,6 +93,22 @@
             <button onclick="window.location.href='/dashboard_uca'">Return to Dashboard</button>
         </div>
         <h1>Car Listings</h1>
+        
+        <!-- Search Form (Compact) -->
+        <form class="search-form" action="/search_listings" method="GET">
+            <label for="make">Car Make:</label>
+            <input type="text" id="make" name="make" placeholder="e.g., Toyota" size="10">
+
+            <label for="min_price">Min Price:</label>
+            <input type="number" id="min_price" name="min_price" placeholder="0" min="0" size="5">
+
+            <label for="max_price">Max Price:</label>
+            <input type="number" id="max_price" name="max_price" placeholder="100000" min="0" size="7">
+
+            <button type="submit">Search</button>
+        </form>
+
+
         <p>Browse through your car listings below.</p>
     </header>
 
