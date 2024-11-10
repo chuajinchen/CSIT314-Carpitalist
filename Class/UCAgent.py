@@ -209,3 +209,30 @@ class UCAgent(Account):
         finally:
             cursor.close()
             conn.close()
+    # Function to get an agent's email (used in /see_reviews)
+    @staticmethod
+    def get_email_by_name(agent_name):
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to the database.")
+            return None
+
+        try:
+            cursor = conn.cursor(dictionary=True)
+            query = """
+                SELECT email 
+                FROM users 
+                WHERE name = %s 
+                LIMIT 1
+            """
+            cursor.execute(query, (agent_name,))
+            result = cursor.fetchone()  # Fetch the agent's email
+            return result['email'] if result else None
+
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return None
+
+        finally:
+            cursor.close()
+            conn.close()
