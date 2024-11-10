@@ -39,8 +39,29 @@ class UCAgent(Account):
 
     
     #Function for Used Car Agent to delete listed vehicles
-    def deleteListing():
-        return 'Deleted'
+    @staticmethod
+    def delete_car_listing(reg_no):
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to the database.")
+            return 1  # Failure
+
+        try:
+            cursor = conn.cursor()
+            query = "DELETE FROM car_list WHERE reg_no = %s"
+            cursor.execute(query, (reg_no,))
+            conn.commit()
+            print("Car listing deleted successfully!")
+            return 0  # Success
+
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return 1  # Failure
+
+        finally:
+            cursor.close()
+            conn.close()
+    
     
      # Function to update car listing details
     @staticmethod
