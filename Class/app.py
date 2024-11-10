@@ -17,15 +17,15 @@ def initiate():
 def login():
     return render_template('login.html')
 
-# Route to render the login form
+# Handling Log in by calling the controller
 @app.route('/login', methods=['POST'])
 def login_user():
     profile = request.form['profile']
     email = request.form['email']
     password = request.form['password']
 
-    if not all([profile, email, password]):
-        return redirect(url_for('login'))  # Redirects to the POST login route
+    if not all([profile, email, password]):  # Check for None or empty values
+        return redirect(url_for('login'))
 
     verify = VerifyLogin(profile, email, password)
     checker = verify.execute()
@@ -35,14 +35,11 @@ def login_user():
         fetch_name = FetchName(email)
         session['name'] = fetch_name.execute()
 
+        # Redirect to the appropriate dashboard based on profile type
         if profile == 'User Admin':
             return redirect(url_for('dashboard'))
         elif profile == 'Used Car Agent':
             return redirect(url_for('dashboard_uca'))
-        elif profile == 'Buyer':
-            return redirect(url_for('buyer_dashboard'))
-        elif profile == 'Seller':
-            return redirect(url_for('dashboard_seller'))
         else:
             flash("Invalid profile type.", "Error")
             return redirect(url_for('login'))
@@ -52,7 +49,6 @@ def login_user():
     else:
         flash("An error has occurred, please try again later.", "Error")
         return redirect(url_for('login'))
-
 
 
 # Route for the dashboard
@@ -93,17 +89,13 @@ def create_car_listing():
         make = request.form.get('make')
         car_type = request.form.get('type')
         color = request.form.get('color')
-        price = float(request.form.get('price'))
-        mileage = int(request.form.get('mileage'))
+        price = request.form.get('price')
+        mileage = request.form.get('mileage')
         descript = request.form.get('description')
-        seller_email = request.form.get('email')
-        agent_email = request.form.get('agent_email')  # New field
+        email = session.get('name')  # Assume the email or agent identifier is stored in the session
 
-        # Fetch make_id based on make
-        make_id = UCAgent.get_make_id(make)
-
-        # Call the updated function with the agent's email
-        result = UCAgent.create_car_listing(reg_no, brand, make_id, car_type, color, price, mileage, descript, seller_email, agent_email)
+        # Call the UCAgent function
+        result = UCAgent.create_car_listing(reg_no, brand, make, car_type, color, price, mileage, descript, email)
 
         if result == 0:
             flash("Car listing created successfully!", "success")
@@ -114,9 +106,6 @@ def create_car_listing():
 
     flash("You need to login first.")
     return redirect(url_for('login'))
-
-
-
 
 # Route to redirect user admin to create new account 
 @app.route('/register', methods=['POST', 'GET'])
@@ -170,12 +159,14 @@ def search():
     
     return render_template('dashboard.html', users=filtered_users, name=session.get('name'))
 
-# Route to suspend a user
 @app.route('/suspend_user', methods=['POST'])
 def suspend_user():
     email = request.form.get('email')
+    if not email:
+        print("No email provided!")  # Log if email is not passed
+    else:
+        print(f"Suspending user with email: {email}")
     suspend_account = SuspendAccount(email)
-    
     if suspend_account.execute():
         flash("User suspended successfully!", "success")
     else:
@@ -196,8 +187,9 @@ def show_update_form():
         name = request.form.get('name')
         new_email = request.form.get('email')  # Get the new email from the form
         profile = request.form.get('profile')
+        status = request.form.get('status')
 
-        update_account = UpdateAccount(new_email, name, profile)
+        update_account = UpdateAccount(new_email, name, profile, status)
         success = update_account.execute()
         
         if success:
@@ -251,9 +243,10 @@ def search_accounts():
     profile_type = request.form.get('profile_type')
     name = request.form.get('name')
     email = request.form.get('email')
+    status = request.form.get('status')
     
     # Use Account.search_users() method to filter based on input
-    search_users = SearchUsers(profile_type=profile_type, email=email, name=name)
+    search_users = SearchUsers(profile_type=profile_type, email=email, name=name, status = status)
     filtered_users = search_users.execute()
     
     return render_template('manage_accounts.html', users=filtered_users)
@@ -277,66 +270,43 @@ def view_listings():
     else:
         flash("You need to login first or do not have permission to access this page.")
         return redirect(url_for('login'))
+
+# Route to display the update form for a specific car listing
+@app.route('/update_car_listing/<reg_no>', methods=['GET'])
+def show_update_car_listing_form(reg_no):
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        # Fetch the car details to pre-fill the form
+        car_details = UCAgent.get_car_by_reg_no(reg_no)
+        if not car_details:
+            flash("Failed to retrieve car details. Please try again.", "error")
+            return redirect(url_for('view_listings'))
+        
+        return render_template('update_car_listing.html', car=car_details)
+    else:
+        flash("You need to log in first or do not have permission to access this page.")
+        return redirect(url_for('login'))
+
+# Route to handle the form submission for updating car listing
+@app.route('/update_car_listing/<reg_no>', methods=['POST'])
+def update_car_listing(reg_no):
+    if 'user_type' in session and session['user_type'] == 'Used Car Agent':
+        # Retrieve form data
+        new_price = request.form.get('price')
+        new_status = request.form.get('status')
+        new_description = request.form.get('description')
+
+        # Call method to update the car listing
+        result = UCAgent.update_car_listing(reg_no, new_price, new_status, new_description)
+        
+        if result == 0:
+            flash("Car listing updated successfully!", "success")
+        else:
+            flash("Failed to update car listing. Please try again.", "error")
+        
+        return redirect(url_for('view_listings'))
     
-@app.route('/search_listings', methods=['GET'])
-def search_listings():
-    make = request.args.get('make', '').strip() or None
-    min_price = request.args.get('min_price', type=float)
-    max_price = request.args.get('max_price', type=float)
-
-    car_listings = UCAgent.search_car_listings(make, min_price, max_price)
-    return render_template('view_car_listings.html', car_listings=car_listings)
-
-
-
-#############################################
-#                Buyer Routes               #
-#############################################
-@app.route('/buyer_dashboard')
-def buyer_dashboard():
-    # Fetch all car listings and shortlisted items for display
-    car_listings = fetch_all_car_listings()
-    shortlist = fetch_shortlist(session['user_id'])
-    return render_template('buyer.html', car_listings=car_listings, shortlist=shortlist)
-
-@app.route('/search_car_listing', methods=['GET'])
-def search_car_listing():
-    make = request.args.get('make', '').strip()
-    min_price = request.args.get('min_price', 0, type=float)
-    max_price = request.args.get('max_price', float('inf'), type=float)
-    car_listings = search_car_listings(make, min_price, max_price)
-    return render_template('buyer.html', car_listings=car_listings, shortlist=fetch_shortlist(session['user_id']))
-
-@app.route('/add_to_shortlist/<car_id>', methods=['POST'])
-def add_to_shortlist(car_id):
-    user_id = session['user_id']
-    result = add_to_shortlist_db(user_id, car_id)
-    return jsonify({'message': 'Added to shortlist' if result else 'Failed to add'})
-
-@app.route('/loan_calculator', methods=['POST'])
-def loan_calculator():
-    loan_amount = float(request.form.get('loan_amount'))
-    interest_rate = float(request.form.get('interest_rate')) / 100 / 12
-    months = int(request.form.get('years')) * 12
-    monthly_payment = (loan_amount * interest_rate) / (1 - (1 + interest_rate) ** -months)
-    return render_template('buyer.html', monthly_payment=monthly_payment)
-
-# Utility functions
-def fetch_all_car_listings():
-    # Mock function to fetch all car listings
-    return [{"id": 1, "make": "Toyota", "model": "Camry", "price": 20000}]
-
-def fetch_shortlist(user_id):
-    # Mock function to fetch a user's shortlist
-    return [{"id": 1, "make": "Toyota", "model": "Camry", "price": 20000}]
-
-def search_car_listings(make, min_price, max_price):
-    # Mock function to search car listings
-    return [{"id": 1, "make": "Toyota", "model": "Camry", "price": 20000}]
-
-def add_to_shortlist_db(user_id, car_id):
-    # Mock function to add car to user's shortlist
-    return True
+    flash("You need to log in first.")
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
