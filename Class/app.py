@@ -47,6 +47,10 @@ def login_user():
             return redirect(url_for('dashboard'))
         elif profile == 'Used Car Agent':
             return redirect(url_for('dashboard_uca'))
+        elif profile == 'Buyer':
+            return redirect(url_for('dashboard_buyer'))
+        elif profile == 'Seller':
+            return redirect(url_for('dashboard_seller'))
         else:
             flash("Invalid profile type.", "Error")
             return redirect(url_for('login'))
