@@ -403,5 +403,136 @@ def search_listings():
     car_listings = UCAgent.search_car_listings(make, min_price, max_price)
     return render_template('view_car_listings.html', car_listings=car_listings)
 
+
+#############################################
+#                Buyer Routes               #
+#############################################
+
+# Route to buyer dashboard
+@app.route('/buyer_dashboard', methods=['GET'])
+def dashboard_buyer():
+    if 'user_type' in session and session['user_type'] == 'Buyer':
+        car_listings = Buyer.get_available_car_listings()  # Use Buyer method to fetch car listings with seller_email
+        return render_template('dashboard_buyer.html', car_listings=car_listings)
+    else:
+        flash("You need to log in as a Buyer to access this page.")
+        return redirect(url_for('login'))
+
+
+# Route to search listings
+@app.route('/search_listings_buyer', methods=['GET'])
+def search_listings_buyer():
+    make = request.args.get('make', '').strip() or None
+    model = request.args.get('model', '').strip() or None
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+    max_mileage = request.args.get('max_mileage', type=int)
+
+    # Use the Buyer class to search listings with the provided filters
+    car_listings = Buyer.search_car_listings(make, model, min_price, max_price, max_mileage)
+    return render_template('dashboard_buyer.html', car_listings=car_listings)
+
+
+# Route to save a car to the shortlist
+@app.route('/save_to_shortlist', methods=['POST'])
+def save_to_shortlist():
+    reg_no = request.form.get('reg_no')
+    buyer_email = request.form.get('buyer_email')  # Get buyer_email from form input
+
+    if reg_no and buyer_email:
+        # Add the car to the shortlist
+        Buyer.add_to_shortlist(buyer_email, reg_no)
+        flash("Car added to shortlist!", "success")
+    else:
+        flash("Please enter a valid email and try again.", "error")
+
+    return redirect(url_for('dashboard_buyer'))
+
+
+# Route to view the shortlist
+@app.route('/buyer_shortlist', methods=['GET'])
+def buyer_shortlist():
+    if 'user_type' in session and session['user_type'] == 'Buyer':
+        buyer_name = session.get('name')
+        buyer_email = Buyer.get_email_by_name(buyer_name)
+        print (buyer_email)
+        shortlisted_cars = Buyer.get_shortlist(buyer_email)
+        print("Data sent to template:", shortlisted_cars)  # Debug print to verify data
+        return render_template('shortlist.html', car_listings=shortlisted_cars)
+    else:
+        flash("You need to log in as a Buyer to access this page.")
+        return redirect(url_for('login'))
+
+
+# Route to view reviews
+@app.route('/buyer_see_reviews', methods=['GET'])
+def buyer_see_reviews():
+    reviews = Buyer.get_agent_reviews()  # Fetch reviews from the database
+    return render_template('buyer_see_reviews.html', reviews=reviews)
+
+
+# Route to submit a new review
+@app.route('/submit_review', methods=['POST'])
+def submit_review():
+    agent_email = request.form.get('agent_email')
+    rating = float(request.form.get('rating'))
+    descript = request.form.get('descript')
+
+    Buyer.submit_review(agent_email, rating, descript)  # Add the review to the database
+    flash("Your review has been submitted!", "success")
+    return redirect(url_for('buyer_see_reviews'))
+
+
+#############################################
+#                Seller Routes               #
+#############################################
+
+# Route for the initial Seller Dashboard with a single button
+@app.route('/dashboard_seller')
+def dashboard_seller():
+    if 'user_type' in session and session['user_type'] == 'Seller':
+        return render_template('dashboard_seller.html', name=session['name'])
+    else:
+        flash("You need to log in as a Seller to access this page.")
+        return redirect(url_for('login'))
+
+# Route for the seller reviews page
+@app.route('/dashboard_seller_reviews')
+def dashboard_seller_reviews():
+    reviews = Buyer.get_agent_reviews()  # Assuming reviews are stored in Buyer for both Buyer and Seller views
+    return render_template('dashboard_seller_reviews.html', reviews=reviews)
+
+# Route for the seller to submit a review
+@app.route('/submit_seller_review', methods=['POST'])
+def submit_seller_review():
+    agent_email = request.form.get('agent_email')
+    rating = float(request.form.get('rating'))
+    descript = request.form.get('descript')
+
+    if Seller.submit_review(agent_email, rating, descript):
+        flash("Review submitted!", "success")
+    else:
+        flash("Failed to submit review. Please try again.", "error")
+    
+    return redirect(url_for('dashboard_seller'))
+
+# Route to display car views and shortlists
+@app.route('/seller_carviews_shortlists')
+def seller_carviews_shortlists():
+    if 'user_type' in session and session['user_type'] == 'Seller':
+        seller_name = session.get('name')
+        seller_email = Seller.get_email_by_name(seller_name)
+        print("Seller name: ", seller_name)
+
+        # Fetch car listings for this seller
+        cars = Seller.get_car_views_and_shortlists(seller_email)
+        print("Cars Data Passed to Template:", cars)  # Debugging print statement
+        print("Seller Email from Session:", seller_email) # Debugging print statement
+
+        return render_template('seller_carviews_shortlists.html', cars=cars)
+    else:
+        flash("You need to log in as a Seller to access this page.")
+        return redirect(url_for('login'))
+
 if __name__ == '__main__':
     app.run(debug=True)
