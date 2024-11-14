@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Views and Shortlists</title>
+</head>
+<body>
+    <h1>Your Car Listings: Views and Shortlists</h1>
+
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Registration Number</th>
+                <th>Brand</th>
+                <th>Type</th>
+                <th>Color</th>
+                <th>Price</th>
+                <th>Mileage</th>
+                <th>View Count</th>
+                <th>Shortlist Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for car in cars %}
+            <tr>
+                <td>{{ car.reg_no }}</td>
+                <td>{{ car.brand }}</td>
+                <td>{{ car.type }}</td>
+                <td>{{ car.color }}</td>
+                <td>{{ car.price }}</td>
+                <td>{{ car.mileage }}</td>
+                <td>{{ car.viewCount }}</td>
+                <td>{{ car.shortlistCount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Button to go back to the Seller Dashboard -->
+    <div style="text-align: left; margin-top: 20px;">
+        <button onclick="window.location.href='/dashboard_seller'">Back to Dashboard</button>
+    </div>
+</body>
+</html>
