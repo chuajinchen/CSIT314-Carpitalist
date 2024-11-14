@@ -9,9 +9,9 @@ class UAdmin(Account):
 
     #Function for user admin to create profiles
        
-    def create_profile(profile_type, search_cars="yes", view_cars="yes", list_cars="yes"):
+    def create_profile(profile_type, search_cars="yes", view_cars="yes", list_cars="yes",description=""):
         # Establish a database connection
-        conn = create_connection()
+        conn = Account.create_connection()
         if conn is None:
             print("Failed to connect to database.")
             return "Database connection error"
@@ -21,9 +21,9 @@ class UAdmin(Account):
         try:
             # Insert a new profile
             insert_query = """
-            INSERT INTO profile (profile_type, search_cars, view_cars, list_cars)
-            VALUES (%s, %s, %s, %s)"""
-            data = (profile_type, search_cars, view_cars, list_cars)
+            INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,descript)
+            VALUES (%s, %s, %s, %s,%s)"""
+            data = (profile_type, search_cars, view_cars, list_cars,description)
             cursor.execute(insert_query, data)
         
             # Commit changes to the database
@@ -48,9 +48,7 @@ class UAdmin(Account):
 
             return 'Success'
     
-    #Function for user admin to view profiles
-    def viewProfile():
-        return 'Profiles'
+   
     
     #Function for user admin to search for specific profile
     def search_users(profile_type=None, email=None, name=None):
@@ -82,13 +80,107 @@ class UAdmin(Account):
         conn.close()
         return users
     
+    def get_all_profile():
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to database.")
+            return "Database connection error"
+    
+        cursor = conn.cursor(dictionary=True)  # Returns results as dictionaries
+        query = "SELECT profile_type, descript FROM profile"
+    
+        cursor.execute(query)
+        profiles = cursor.fetchall()
+    
+        cursor.close()
+        conn.close()
+
+        # Convert the list of dictionaries to a single dictionary
+        profiles_dict = {profile['profile_type']: profile['descript'] for profile in profiles}
+
+        return profiles_dict
+
+        
+
+    #Function for user admin to view profiles
+    def viewProfile():
+        return 'Profiles'
+
     #Function for user admin to suspend a profile
-    def suspendProfile():
-        return 'Suspended Profile'
+    def suspendProfile(profile_type):
+         # Establish a database connection
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to database.")
+            return "Database connection error"
+    
+        cursor = conn.cursor()
+    
+        try:
+            # Insert a new profile
+            insert_query = """UPDATE profile SET search_cars = "no" ,view_cars = "no", list_cars = "no"  WHERE profile_type = %s; """
+            data = (profile_type,)
+            cursor.execute(insert_query, data)
+        
+            # Commit changes to the database
+            conn.commit()
+        
+            print(f"Profile '{profile_type}' suspended successfully.")
+            return "Profile suspended successfully"
+        
+        except mysql.connector.Error as err:
+            # Handle specific MySQL errors
+                print(f"Database Error: {err}")
+                return "Failed to suspend profile"
+    
+        finally:
+            # Close the cursor and connection
+            cursor.close()
+            conn.close()
+
+            return 'Suspended Profile'
+
+       
     
     #Function for user admin to update user profile
-    def updateProfile():
-        return 'Profile updated'
+    def updateProfile(oldprofile,newprofile,description):
+        # Establish a database connection
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to database.")
+            return "Database connection error"
+    
+        cursor = conn.cursor()
+    
+        try:
+            # Insert a new profile
+            insert_query = """UPDATE profile SET profile_type = %s,descript = %s WHERE profile_type = %s"""
+            data = (newprofile,description,oldprofile)
+            print(data)
+            cursor.execute(insert_query, data)
+        
+          #  # Commit changes to the database
+            #conn.commit()
+           # insert_query = """UPDATE users SET profile = %s WHERE profile = %s"""
+            #data = (newprofile,oldprofile)
+            #cursor.execute(insert_query, data)
+        
+            # Commit changes to the database
+            conn.commit()
+            print(f"Profile '{newprofile}' update successfully.")
+            return "Profile update successfully"
+        
+        except mysql.connector.Error as err:
+            # Handle specific MySQL errors
+                print(f"Database Error: {err}")
+                return "Failed to update profile"
+    
+        finally:
+            # Close the cursor and connection
+            cursor.close()
+            conn.close()
+
+            return 'Profile updated'
     
     #Function for user admin to create account
     def createAccount(self):
