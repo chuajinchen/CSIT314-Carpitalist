@@ -89,13 +89,17 @@ def create_car_listing():
         make = request.form.get('make')
         car_type = request.form.get('type')
         color = request.form.get('color')
-        price = request.form.get('price')
-        mileage = request.form.get('mileage')
+        price = float(request.form.get('price'))
+        mileage = int(request.form.get('mileage'))
         descript = request.form.get('description')
-        email = session.get('name')  # Assume the email or agent identifier is stored in the session
+        seller_email = request.form.get('email')
+        agent_email = request.form.get('agent_email')  # New field
 
-        # Call the UCAgent function
-        result = UCAgent.create_car_listing(reg_no, brand, make, car_type, color, price, mileage, descript, email)
+        # Fetch make_id based on make
+        make_id = UCAgent.get_make_id(make)
+
+        # Call the updated function with the agent's email
+        result = UCAgent.create_car_listing(reg_no, brand, make_id, car_type, color, price, mileage, descript, seller_email, agent_email)
 
         if result == 0:
             flash("Car listing created successfully!", "success")
@@ -159,6 +163,7 @@ def search():
     
     return render_template('dashboard.html', users=filtered_users, name=session.get('name'))
 
+# Route to suspend users
 @app.route('/suspend_user', methods=['POST'])
 def suspend_user():
     email = request.form.get('email')
@@ -238,6 +243,7 @@ def logout():
     flash("You have been logged out.")
     return redirect(url_for('login'))
 
+# Route to search accounts
 @app.route('/search_accounts', methods=['POST'])
 def search_accounts():
     profile_type = request.form.get('profile_type')
@@ -246,7 +252,7 @@ def search_accounts():
     status = request.form.get('status')
     
     # Use Account.search_users() method to filter based on input
-    search_users = SearchUsers(profile_type=profile_type, email=email, name=name, status = status)
+    search_users = SearchUsers(profile_type=profile_type, email=email, name=name, status=status)
     filtered_users = search_users.execute()
     
     return render_template('manage_accounts.html', users=filtered_users)
@@ -348,6 +354,16 @@ def see_reviews():
 
     flash("You need to log in first.")
     return redirect(url_for('login'))
+
+# Route to search listings    
+@app.route('/search_listings', methods=['GET'])
+def search_listings():
+    make = request.args.get('make', '').strip() or None
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+
+    car_listings = UCAgent.search_car_listings(make, min_price, max_price)
+    return render_template('view_car_listings.html', car_listings=car_listings)
 
 if __name__ == '__main__':
     app.run(debug=True)

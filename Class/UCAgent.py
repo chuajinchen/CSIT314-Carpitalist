@@ -37,7 +37,6 @@ class UCAgent(Account):
             cursor.close()
             conn.close()
 
-    
     #Function for Used Car Agent to delete listed vehicles
     @staticmethod
     def delete_car_listing(reg_no):
@@ -62,7 +61,6 @@ class UCAgent(Account):
             cursor.close()
             conn.close()
     
-    
      # Function to update car listing details
     @staticmethod
     def update_car_listing(reg_no, price, status, description):
@@ -86,7 +84,6 @@ class UCAgent(Account):
         finally:
             cursor.close()
             conn.close()
-    
     
     #Function for Used Car Agent to view car listing
     @staticmethod
@@ -212,6 +209,7 @@ class UCAgent(Account):
         finally:
             cursor.close()
             conn.close()
+
     #Function used for create listing agent
     @staticmethod
     def get_make_id(make_name):
@@ -234,6 +232,7 @@ class UCAgent(Account):
         finally:
             cursor.close()
             conn.close()
+
     # Function to get an agent's email (used in /see_reviews)
     @staticmethod
     def get_email_by_name(agent_name):
