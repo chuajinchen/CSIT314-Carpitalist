@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews of Used Car Agent</title>
+</head>
+<body>
+    <h1>Reviews of Used Car Agents</h1>
+
+    <!-- Form to Add a New Review -->
+    <h2>Write a Review for an Agent</h2>
+    <form action="/submit_review" method="POST">
+        <label for="agent_email">Agent Email:</label>
+        <input type="email" name="agent_email" id="agent_email" required>
+
+        <label for="rating">Rating (1 to 5):</label>
+        <input type="number" name="rating" id="rating" min="1" max="5" step="0.1" required>
+
+        <label for="descript">Review:</label>
+        <textarea name="descript" id="descript" required></textarea>
+
+        <button type="submit">Submit Review</button>
+    </form>
+    
+    <!-- Display Reviews -->
+    <section>
+        {% for review in reviews %}
+            <div>
+                <h3>Agent: {{ review.agent }}</h3>
+                <p>Rating: {{ review.rating }} / 5.0</p>
+                <p>Review: {{ review.descript }}</p>
+                <p>Agent Email: {{ review.agent_email }}</p>
+            </div>
+            <hr>
+        {% else %}
+            <p>No reviews available yet.</p>
+        {% endfor %}
+    </section>
+
+    <!-- Button to go back to Buyer Dashboard aligned to the left -->
+    <div style="text-align: left; margin-top: 20px;">
+        <button onclick="window.location.href='/buyer_dashboard'">Go Back to Buyer Dashboard</button>
+    </div>
+
+</body>
+</html>
