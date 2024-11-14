@@ -1,7 +1,9 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 import os
 from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail,createProfile,updateProfile,suspendProfile,getProfiles
-from UCAgent import UCAgent  # Correct import
+from UCAgent import UCAgent  # Import Used Car Agent class
+from Buyer import Buyer # Import the new Buyer class
+from Seller import Seller  # Import the new Seller class
 
 # Initialize the Flask application
 app = Flask(__name__)
