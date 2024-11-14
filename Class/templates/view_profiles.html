@@ -21,13 +21,14 @@
         <!-- Submit button to view description -->
         <button type="submit">View Description</button>
         <a href="/dashboard"><button type="button">Back to Dashboard</button></a>
+        <a href="/create_profile"><button type="button">Create Profile</button></a>
     </form>
 
     <!-- Display the selected profile and description if available -->
     {% if selected_profile %}
-        <input type="text" value="{{ selected_profile }}" id="profile_name">
-        <textarea >{{ description }}</textarea>
-        <form method="POST" action="/update_profile">
+    <form method="POST" action="/update_profile">
+        <input type="text" value="{{ selected_profile }}" name ="profile_text" id="profile_text">
+        <textarea name ="description" id="description" >{{ description }}</textarea>
             <button type="submit" name="update" value="{{ selected_profile }}">Update Profile</button>
         </form>
         <form method="POST" action="/suspend_profile">

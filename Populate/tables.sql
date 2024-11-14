@@ -5,9 +5,14 @@ CREATE TABLE profile(
     search_cars VARCHAR(20) DEFAULT 'yes',
     view_cars VARCHAR(20) DEFAULT 'yes',
     list_cars VARCHAR(20) DEFAULT 'yes',
+    descript  VARCHAR(255),
     PRIMARY KEY(id),
     UNIQUE (profile_type)
 );
+ INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,descript) VALUES ('Buyer','yes', 'yes', 'yes','View cars, view car information, mileage, buy cars');
+ INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,descript) VALUES ('Seller','yes', 'yes', 'yes','List cars for sale, manage listings, view buyer requests');
+ INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,descript) VALUES ('Used Car Agent','yes', 'yes', 'yes','Assist buyers with car purchases, verify car conditions, liaise with sellers');
+ INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,descript) VALUES ('User Admin','yes', 'yes', 'yes','Manage user accounts, access all profiles, add/delete users');
 
 -- Review List
 CREATE TABLE review_list(
@@ -55,7 +60,7 @@ CREATE TABLE car_list(
     sale_status VARCHAR(255) DEFAULT 'available',
     viewCount INT DEFAULT 0,
     shortlistCount INT DEFAULT 0,
-    agent_email VARCHAR(255)
+    agent_email VARCHAR(255),
     seller_email VARCHAR(255),
     PRIMARY KEY (id, reg_no),
     FOREIGN KEY(make_id) REFERENCES car_model(id),

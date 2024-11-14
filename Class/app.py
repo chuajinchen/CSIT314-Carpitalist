@@ -1,15 +1,20 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 import os
-from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail,createProfile,updateProfile,suspendProfile
+from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail,createProfile,updateProfile,suspendProfile,getProfiles
 from UCAgent import UCAgent  # Correct import
 
 # Initialize the Flask application
 app = Flask(__name__)
 app.secret_key = os.urandom(12)  # Needed for sessions and flash messages
 
+# Add descriptions for each profile type
+profile_descriptions={}
 # Users start from this page
 @app.route('/')
 def initiate():
+   # Add descriptions for each profile type
+    global profile_descriptions
+    profile_descriptions = getProfiles.execute()
     return render_template('login.html')
 
 # Route to render the login form
@@ -205,14 +210,8 @@ def show_update_form():
 
     return render_template('update_form.html', user=user)
 
-# Add descriptions for each profile type
-profile_descriptions = {
-    "Buyer": "View cars, view car information, mileage, buy cars",
-    "Seller": "List cars for sale, manage listings, view buyer requests",
-    "Used Car Agent": "Assist buyers with car purchases, verify car conditions, liaise with sellers",
-    "User Admin": "Manage user accounts, access all profiles, add/delete users"
-}
 
+#####################
 # Route to view profiles with descriptions
 # Route to view profiles
 @app.route('/view_profiles', methods=['GET', 'POST'])
@@ -222,10 +221,10 @@ def view_profiles():
 
     if request.method == 'POST':
         selected_profile = request.form.get('profile_type')
-        description = profile_descriptions.get(selected_profile, "No description available for this profile.")
+        description = getProfiles.execute().get(selected_profile, "")
 
     return render_template('view_profiles.html', 
-                           profile_types=profile_descriptions.keys(),
+                           profile_types=getProfiles.execute().keys(),
                            selected_profile=selected_profile, 
                            description=description)
 
@@ -249,25 +248,23 @@ def create_profile():
 def update_profile():
     profile_to_update = request.form.get('update')
     oldprofile_type = request.form.get('profile_type')
-    profile_type = request.form.get('profile_name')
+    profile_type = request.form.get('profile_text')
     description = request.form.get('description')
-    if profile_to_update:
-        # Update the profile description or other attributes here
-        updateProf = updateProfile(oldprofile_type,profile_type,description)
-        updateProf.execute();
-        return redirect(url_for('view_profiles'))
+    # Update the profile description or other attributes here
+    updateProf = updateProfile(profile_to_update,profile_type,description)
+    updateProf.execute();
     return redirect(url_for('view_profiles'))
 
 # Route to suspend profile
 @app.route('/suspend_profile', methods=['POST'])
 def suspend_profile():
     profile_to_suspend = request.form.get('suspend')
-    if profile_to_suspend:
-        # Suspend or remove the profile here
-        susprof = suspendProfile(profile_to_suspend)
-        susprof.execute();
-        return redirect(url_for('view_profiles'))
+    susprof = suspendProfile(profile_to_suspend)
+    susprof.execute()
     return redirect(url_for('view_profiles'))
+
+
+#####################################
 @app.route('/manage_accounts', methods=['GET'])
 def manage_accounts():
     return render_template('manage_accounts.html')

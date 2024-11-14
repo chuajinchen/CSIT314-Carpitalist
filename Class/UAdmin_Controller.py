@@ -110,3 +110,8 @@ class suspendProfile:
     
     def execute(self):
         return UAdmin.suspendProfile(self.prof)
+    
+class getProfiles:
+    @staticmethod
+    def execute():
+        return UAdmin.get_all_profile()

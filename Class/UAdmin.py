@@ -21,8 +21,8 @@ class UAdmin(Account):
         try:
             # Insert a new profile
             insert_query = """
-            INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,description)
-            VALUES (%s, %s, %s, %s)"""
+            INSERT INTO profile (profile_type, search_cars, view_cars, list_cars,descript)
+            VALUES (%s, %s, %s, %s,%s)"""
             data = (profile_type, search_cars, view_cars, list_cars,description)
             cursor.execute(insert_query, data)
         
@@ -80,6 +80,28 @@ class UAdmin(Account):
         conn.close()
         return users
     
+    def get_all_profile():
+        conn = Account.create_connection()
+        if conn is None:
+            print("Failed to connect to database.")
+            return "Database connection error"
+    
+        cursor = conn.cursor(dictionary=True)  # Returns results as dictionaries
+        query = "SELECT profile_type, descript FROM profile"
+    
+        cursor.execute(query)
+        profiles = cursor.fetchall()
+    
+        cursor.close()
+        conn.close()
+
+        # Convert the list of dictionaries to a single dictionary
+        profiles_dict = {profile['profile_type']: profile['descript'] for profile in profiles}
+
+        return profiles_dict
+
+        
+
     #Function for user admin to view profiles
     def viewProfile():
         return 'Profiles'
@@ -96,8 +118,8 @@ class UAdmin(Account):
     
         try:
             # Insert a new profile
-            insert_query = """UPDATE profile SET search_cars = False ,view_cars = False,list_cars = False  WHERE profile_type = %s"""
-            data = (profile_type)
+            insert_query = """UPDATE profile SET search_cars = "no" ,view_cars = "no", list_cars = "no"  WHERE profile_type = %s; """
+            data = (profile_type,)
             cursor.execute(insert_query, data)
         
             # Commit changes to the database
@@ -132,15 +154,16 @@ class UAdmin(Account):
     
         try:
             # Insert a new profile
-            insert_query = """UPDATE profile SET profile_type = %s,description = %s WHERE profile_type = %s"""
+            insert_query = """UPDATE profile SET profile_type = %s,descript = %s WHERE profile_type = %s"""
             data = (newprofile,description,oldprofile)
+            print(data)
             cursor.execute(insert_query, data)
         
-            # Commit changes to the database
-            conn.commit()
-            insert_query = """UPDATE user SET profile = %s WHERE profile = %s"""
-            data = (newprofile,oldprofile)
-            cursor.execute(insert_query, data)
+          #  # Commit changes to the database
+            #conn.commit()
+           # insert_query = """UPDATE users SET profile = %s WHERE profile = %s"""
+            #data = (newprofile,oldprofile)
+            #cursor.execute(insert_query, data)
         
             # Commit changes to the database
             conn.commit()
