@@ -1,20 +1,22 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 import os
 from UAdmin_Controller import VerifyLogin, CreateAccount, FetchName, GetAllUsers, UpdateAccount, SuspendAccount, DeleteAccount, SearchUsers, GetUserByEmail,createProfile,updateProfile,suspendProfile,getProfiles
-from UCAgent import UCAgent  # Import Used Car Agent class
+from UCAgent import UCAgent  # Import the new Used Car Agent class
 from Buyer import Buyer # Import the new Buyer class
 from Seller import Seller  # Import the new Seller class
+
 
 # Initialize the Flask application
 app = Flask(__name__)
 app.secret_key = os.urandom(12)  # Needed for sessions and flash messages
 
 # Add descriptions for each profile type
-profile_descriptions={}
+profile_descriptions = {}
+
 # Users start from this page
 @app.route('/')
 def initiate():
-   # Add descriptions for each profile type
+    # Add descriptions for each profile type
     global profile_descriptions
     profile_descriptions = getProfiles.execute()
     return render_template('login.html')
@@ -24,15 +26,15 @@ def initiate():
 def login():
     return render_template('login.html')
 
-# Handling Log in by calling the controller
+# Route to render the login form
 @app.route('/login', methods=['POST'])
 def login_user():
     profile = request.form['profile']
     email = request.form['email']
     password = request.form['password']
 
-    if not all([profile, email, password]):  # Check for None or empty values
-        return redirect(url_for('login'))
+    if not all([profile, email, password]):
+        return redirect(url_for('login'))  # Redirects to the POST login route
 
     verify = VerifyLogin(profile, email, password)
     checker = verify.execute()
@@ -42,7 +44,6 @@ def login_user():
         fetch_name = FetchName(email)
         session['name'] = fetch_name.execute()
 
-        # Redirect to the appropriate dashboard based on profile type
         if profile == 'User Admin':
             return redirect(url_for('dashboard'))
         elif profile == 'Used Car Agent':
@@ -60,6 +61,7 @@ def login_user():
     else:
         flash("An error has occurred, please try again later.", "Error")
         return redirect(url_for('login'))
+
 
 
 # Route for the dashboard
@@ -122,6 +124,9 @@ def create_car_listing():
     flash("You need to login first.")
     return redirect(url_for('login'))
 
+
+
+
 # Route to redirect user admin to create new account 
 @app.route('/register', methods=['POST', 'GET'])
 def create_user():
@@ -174,7 +179,7 @@ def search():
     
     return render_template('dashboard.html', users=filtered_users, name=session.get('name'))
 
-# Route to suspend users
+# Route to suspend a user
 @app.route('/suspend_user', methods=['POST'])
 def suspend_user():
     email = request.form.get('email')
@@ -222,9 +227,8 @@ def show_update_form():
     return render_template('update_form.html', user=user)
 
 
-#####################
+
 # Route to view profiles with descriptions
-# Route to view profiles
 @app.route('/view_profiles', methods=['GET', 'POST'])
 def view_profiles():
     selected_profile = None
@@ -274,8 +278,7 @@ def suspend_profile():
     susprof.execute()
     return redirect(url_for('view_profiles'))
 
-
-#####################################
+# Route for Manage Accounts page
 @app.route('/manage_accounts', methods=['GET'])
 def manage_accounts():
     return render_template('manage_accounts.html')
@@ -485,8 +488,8 @@ def submit_review():
     descript = request.form.get('descript')
 
     Buyer.submit_review(agent_email, rating, descript)  # Add the review to the database
-    flash("Your review has been submitted!", "success")
     return redirect(url_for('buyer_see_reviews'))
+
 
 
 #############################################
@@ -516,7 +519,7 @@ def submit_seller_review():
     descript = request.form.get('descript')
 
     if Seller.submit_review(agent_email, rating, descript):
-        flash("Review submitted!", "success")
+        print("Success")
     else:
         flash("Failed to submit review. Please try again.", "error")
     
@@ -539,6 +542,8 @@ def seller_carviews_shortlists():
     else:
         flash("You need to log in as a Seller to access this page.")
         return redirect(url_for('login'))
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
