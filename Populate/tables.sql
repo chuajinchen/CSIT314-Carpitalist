@@ -68,3 +68,16 @@ CREATE TABLE car_list(
     FOREIGN KEY(seller_email) REFERENCES users(email),
     FOREIGN KEY(brand) REFERENCES car_brand(name)
 );
+
+-- Add an index to reg_no to support foreign key references
+ALTER TABLE car_list ADD INDEX (reg_no);
+
+-- Now, create the shortlist table
+CREATE TABLE shortlist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    buyer_email VARCHAR(255) NOT NULL,
+    reg_no VARCHAR(40) NOT NULL,
+    added_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (buyer_email) REFERENCES users(email) ON DELETE CASCADE,
+    FOREIGN KEY (reg_no) REFERENCES car_list(reg_no) ON DELETE CASCADE
+);
