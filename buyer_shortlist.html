@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Shortlisted Cars</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Your Shortlisted Cars</h1>
+        <p>These are the cars you have saved to your shortlist.</p>
+        <button onclick="window.location.href='/buyer_dashboard'">Back to Dashboard</button>
+    </header>
+
+    <main>
+        <section class="car-listings">
+            <div class="listing-container">
+                {% if car_listings %}
+                    {% for car in car_listings %}
+                    <div class="car-listing">
+                        <div class="car-info">
+                            <p><strong>ID:</strong> {{ car.id }}</p>
+                            <p><strong>Buyer Email:</strong> {{ car.buyer_email }}</p>
+                            <p><strong>Registration Number:</strong> {{ car.reg_no }}</p>
+                            <p><strong>Date Added:</strong> {{ car.added_on }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No cars in your shortlist.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>
